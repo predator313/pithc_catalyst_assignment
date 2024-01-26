@@ -1,79 +1,65 @@
 package com.aamirashraf.repository
 
-import androidx.lifecycle.LiveData
+import android.util.Log
 import com.aamirashraf.model.Item
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.DatabaseReference
-import androidx.lifecycle.MutableLiveData
+
+import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.toObject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
+import java.lang.StringBuilder
 
 
-class ItemRepository(private val databaseReference: DatabaseReference) {
-
-//    fun addItem(item: Item) {
-//        val newItemReference = databaseReference.push()
-//        newItemReference.setValue(item)
-//    }
-//
-//    fun deleteCheckedItems() {
-//        val query = databaseReference.orderByChild("isChecked").equalTo(true)
-//
-//        query.addListenerForSingleValueEvent(object : ValueEventListener {
-//            override fun onDataChange(snapshot: DataSnapshot) {
-//                for (itemSnapshot in snapshot.children) {
-//                    itemSnapshot.ref.removeValue()
-//                }
-//            }
-//
-//            override fun onCancelled(error: DatabaseError) {
-//                // Handle error
-//            }
-//        })
-//    }
-
-    private val _items = MutableLiveData<List<Item>>()
-    val items: LiveData<List<Item>> get() = _items
-
-    init {
-        // Fetch initial data from Firebase and update _items
-        databaseReference.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val itemList = mutableListOf<Item>()
-                for (itemSnapshot in snapshot.children) {
-                    val item = itemSnapshot.getValue(Item::class.java)
-                    item?.let {
-                        itemList.add(it)
-                    }
-                }
-                _items.value = itemList
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                // Handle error
-            }
-        })
-    }
+class ItemRepository(private val databaseReference: CollectionReference) {
 
     fun addItem(item: Item) {
-        val newItemReference = databaseReference.push()
-        newItemReference.setValue(item)
-    }
 
-    fun deleteCheckedItems() {
-        val query = databaseReference.orderByChild("isChecked").equalTo(true)
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                databaseReference.add(item).await()
+                withContext(Dispatchers.Main){
+                    Log.d("hello","successfully saved the data")
+                }
 
-        query.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                for (itemSnapshot in snapshot.children) {
-                    itemSnapshot.ref.removeValue()
+            }catch (e:Exception){
+                withContext(Dispatchers.Main){
+                    Log.d("hello",e.message.toString())
                 }
             }
+        }
 
-            override fun onCancelled(error: DatabaseError) {
-                // Handle error
-            }
-        })
     }
+
+
+    suspend fun getAllItems(): List<Item> = withContext(Dispatchers.IO) {
+        try {
+            val querySnapshot = databaseReference.get().await()
+            Log.d("aamir", querySnapshot.size().toString())
+            val list= mutableListOf<Item>()
+            val sbuilder=StringBuilder()
+            for(item in querySnapshot.documents){
+               val person=item.toObject<Item>()
+//                sbuilder.append(person)
+                if(person!=null)
+                  list.add(person)
+            }
+            withContext(Dispatchers.Main){
+//                Log.d("aamir",item.toString()+"for loop")
+                Log.d("aamir",sbuilder.toString()+"for loop")
+            }
+//            return@withContext querySnapshot.toObjects(Item::class.java)
+            return@withContext list
+        } catch (e: Exception) {
+            Log.d("hello", e.message.toString()+"get all exception")
+            return@withContext emptyList()
+        }
+    }
+
+
+
+
 
 }

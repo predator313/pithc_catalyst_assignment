@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.aamirashraf.model.Item
 import com.aamirashraf.pitch_catalyst_assignment.databinding.RvItemsBinding
 
-class MyAdapter(private var list:List<Item>):Adapter<MyAdapter.MyViewHolder>() {
+class MyAdapter(private val list: MutableList<Item>):Adapter<MyAdapter.MyViewHolder>() {
     inner class MyViewHolder(val binding: RvItemsBinding):ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
@@ -32,8 +32,13 @@ class MyAdapter(private var list:List<Item>):Adapter<MyAdapter.MyViewHolder>() {
             cbDone.isChecked=curr.isChecked
         }
     }
-    fun updateData(newList: List<Item>) {
-        list = newList
+
+    fun updateData(newItems: List<Item>) {
+        list.clear()
+        list.addAll(newItems)
+
         notifyDataSetChanged()
     }
+
+
 }
