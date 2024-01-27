@@ -30,6 +30,19 @@ class MyAdapter(private val list: MutableList<Item>):Adapter<MyAdapter.MyViewHol
             tvtitle1.text=curr.title
             tvBody.text=curr.body
             cbDone.isChecked=curr.isChecked
+            root.setOnClickListener {
+                cbDone.isChecked=!cbDone.isChecked
+                curr.isChecked=cbDone.isChecked
+                listener?.invoke(curr)
+
+            }
+            cbDone.setOnClickListener {
+//                cbDone.isChecked=!cbDone.isChecked
+                curr.isChecked=cbDone.isChecked
+                listener?.invoke(curr)
+            }
+
+
         }
     }
 
@@ -38,6 +51,10 @@ class MyAdapter(private val list: MutableList<Item>):Adapter<MyAdapter.MyViewHol
         list.addAll(newItems)
 
         notifyDataSetChanged()
+    }
+    private var listener:((Item)->Unit)?=null
+    fun onItemClick(listener:(Item)->Unit){
+        this.listener=listener
     }
 
 

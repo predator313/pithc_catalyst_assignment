@@ -11,12 +11,6 @@ import kotlinx.coroutines.launch
 
 class ItemViewModel(private val repository: ItemRepository) : ViewModel() {
 
-//    private val _items = MutableLiveData<List<Item>>()
-//    val items: LiveData<List<Item>> get() = _items
-//
-//    fun addItem(title: String, body: String) {
-//        repository.addItem(Item(title, body))
-//    }
 
     private val _items = MutableLiveData<List<Item>>()
     val items: LiveData<List<Item>> get() = _items
@@ -34,6 +28,19 @@ class ItemViewModel(private val repository: ItemRepository) : ViewModel() {
         viewModelScope.launch {
             repository.addItem(Item(title, body))
             // Update the LiveData after adding the item
+            _items.value = repository.getAllItems()
+        }
+    }
+    fun updateCheckedStatus(item: Item) {
+        viewModelScope.launch {
+            repository.updateCheckedStatus(item)
+        }
+    }
+
+    fun deleteItems() {
+        viewModelScope.launch {
+            repository.deleteItems()
+            // Update the LiveData after deleting the items
             _items.value = repository.getAllItems()
         }
     }

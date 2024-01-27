@@ -22,14 +22,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: ItemViewModel
     private lateinit var myAdapter: MyAdapter
     private val lst= listOf(
-//        Item("abv","adkdfkd"),
-//        Item("ab","adkdfkd"),
-//        Item("abs","adkdfkd"),
-//        Item("arv","adkdfkd"),
-//        Item("gbv","adkdfkd"),
-//        Item("hbv","adkdfkd"),
-//        Item("nbv","adkdfkd"),
-//        Item("auv","adkdfkd"),
         Item("awv","adkdfkd"),
     )
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,6 +50,11 @@ class MainActivity : AppCompatActivity() {
 
         // Example: Delete checked items on another button click
         binding.deleteButton.setOnClickListener {
+            viewModel.deleteItems()
+        }
+        myAdapter.onItemClick {
+            Log.d("james",it.isChecked.toString()+"checked status")
+            viewModel.updateCheckedStatus(it)
 
         }
 
@@ -66,9 +63,6 @@ class MainActivity : AppCompatActivity() {
             // Update your RecyclerView or other UI components
             Log.d("aamir",items.size.toString()+"size from observe block ")
             myAdapter.updateData(items)
-            // Ensure the adapter is set up after updating the data
-//            setUpAdapter()
-//            myAdapter.updateData(items)
 
         })
 
